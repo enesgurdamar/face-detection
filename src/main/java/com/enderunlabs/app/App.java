@@ -1,6 +1,9 @@
 package com.enderunlabs.app;
 
 import java.awt.Image;
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
 
 import javax.swing.*;
 
@@ -11,29 +14,33 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.videoio.Videoio;
 import org.opencv.videoio.VideoCapture;
 
-public class App {
+public class App extends Thread {
 
     static{ System.loadLibrary(Core.NATIVE_LIBRARY_NAME); }
 
     private JFrame frame;
     private JLabel imageLabel;
 
-    public static void main( String[] args ) {
+    public static void main( String[] args ) throws InterruptedException, IOException {
 
         // Open an image file
-        String filePath = "src/main/resources/images/starrynight.jpg";
+        String filePath = "src/main/resources/images/building.jpg";
         Mat newImage = Imgcodecs.imread(filePath);
         if(newImage.dataAddr()==0){
             System.out.println("Couldn't open file " + filePath);
         }
         else {
-            ImageViewer imageViewer = new ImageViewer();
-            imageViewer.show(newImage, "Loaded Image");
+            // Filter
+            GUI gui = new GUI("OpenCV GUI", newImage);
+            gui.init();
         }
 
+
+        // Capture video
         App app = new App();
         app.initGUI();
-        app.runMainLoop(args);
+        app.runMainLoop();
+
 
     }
 
@@ -60,37 +67,39 @@ public class App {
         frame.setVisible(true);
     }
 
+
+
     // Capture a video from a camera
-    private void runMainLoop(String[] args){
+    private void runMainLoop() {
 
         ImageProcessor imageViewer = new ImageProcessor();
         Mat webcamMatImage = new Mat();
         Image tempImage;
-        VideoCapture capture = new VideoCapture(0); // Capture from web cam (0)
-        // VideoCapture capture = new VideoCapture("rtsp://192.168.2.64/Streaming/Channels/101");
+
+        //VideoCapture capture = new VideoCapture(0); // Capture from web cam
+        VideoCapture capture = new VideoCapture("rtsp://192.168.2.64/Streaming/Channels/101"); // Capture from IP Camera
+        //VideoCapture capture = new VideoCapture("src/main/resources/videos/192.168.2.64_20160804140448.avi"); // Capture avi file
+
         // Setting camera resolution
-        capture.set(Videoio.CAP_PROP_FRAME_WIDTH,800);
-        capture.set(Videoio.CAP_PROP_FRAME_HEIGHT,600);
-        if (capture.isOpened()){ // Check whether the camera is instantiated
-            while (true){ // Retrieve each captured frame in a loop
+        capture.set(Videoio.CAP_PROP_FRAME_WIDTH, 800);
+        capture.set(Videoio.CAP_PROP_FRAME_HEIGHT, 600);
+
+        if (capture.isOpened()) { // Check whether the camera is instantiated
+            while (true) { // Retrieve each captured frame in a loop
                 capture.read(webcamMatImage);
-                if (!webcamMatImage.empty()){
+                if (!webcamMatImage.empty()) {
                     tempImage = imageViewer.toBufferedImage(webcamMatImage);
                     ImageIcon imageIcon = new ImageIcon(tempImage, "Captured Video");
                     imageLabel.setIcon(imageIcon);
                     frame.pack(); // This will resize the window to fit the image
-                }
-                else {
-                    System.out.println(" -- Frame not captured -- Break!");
+                } else {
+                    System.out.println(" -- Frame not captured or the video has finished! -- Break!");
                     break;
                 }
             }
-        }
-        else {
+        } else {
             System.out.println("Couldn't open capture.");
         }
     }
-
-
 
 }
