@@ -1,9 +1,10 @@
 com\enderunlabs\app\App.class
 com\enderunlabs\app\GUI$3.class
+com\enderunlabs\app\utils\backgroundProcessors\RunningAverageBackground.class
+com\enderunlabs\app\utils\backgroundProcessors\MixtureOfGaussianBackground.class
 com\enderunlabs\app\utils\ImageProcessor.class
-com\enderunlabs\app\utils\ImageViewer.class
 com\enderunlabs\app\GUI$2.class
 com\enderunlabs\app\GUI.class
-com\enderunlabs\app\GUI$5.class
+com\enderunlabs\app\utils\VideoProcessor.class
 com\enderunlabs\app\GUI$1.class
-com\enderunlabs\app\GUI$4.class
+com\enderunlabs\app\utils\backgroundProcessors\AbsDifferenceBackground.class
