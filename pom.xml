@@ -13,6 +13,14 @@
             <id>javaopencvbook</id>
             <url>https://raw.github.com/JavaOpenCVBook/code/maven2/</url>
         </repository>
+        <repository>
+            <id>Sonatype repository</id>
+            <name>Sonatype's Maven repository</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -37,6 +45,23 @@
             <groupId>com.enderunlabs.app</groupId>
             <artifactId>opencv-app</artifactId>
             <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>javacv</artifactId>
+            <version>1.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.bytedeco.javacpp-presets</groupId>
+            <artifactId>ffmpeg</artifactId>
+            <version>3.0.2-1.2.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco.javacpp-presets</groupId>
+            <artifactId>ffmpeg</artifactId>
+            <version>3.0.2-1.2.1-SNAPSHOT</version>
+            <classifier>windows-x86_64</classifier>
         </dependency>
 
     </dependencies>

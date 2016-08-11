@@ -6,6 +6,7 @@ import org.opencv.core.Point;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
+import org.opencv.objdetect.Objdetect;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
 
@@ -25,15 +26,11 @@ public class App extends Thread {
     private JFrame frame;
     private JLabel imageLabel;
     private CascadeClassifier faceDetector;
-    private JButton btnRecognize;
-    private JPanel buttonPanel;
-private CascadeClassifier eyeDetector;
+    private CascadeClassifier leftEyeDetector;
+    private CascadeClassifier rightEyeDetector;
+
     public static void main(String[] args) throws InterruptedException, IOException {
 
-//        File f = new File("data/engin.png");
-//        File f2 = new File("data.png");
-//        Compare imgComp = new Compare();
-//        System.out.println(imgComp.compareTwoImages(f, f2));
         // Capture video
         App app = new App();
         app.initGUI();
@@ -43,10 +40,12 @@ private CascadeClassifier eyeDetector;
     }
 
     private void loadCascade() {
-        String cascadePath = "src/main/resources/cascades/lbpcascade_frontalface.xml";
-        faceDetector = new CascadeClassifier(cascadePath);
-        String cascadeEye = "src/main/resources/cascades/haarcascade_eye_tree_eyeglasses.xml";
-        eyeDetector =new CascadeClassifier(cascadeEye);
+        String cascadeFace = "src/main/resources/cascades/lbpcascade_frontalface.xml";
+        faceDetector = new CascadeClassifier(cascadeFace);
+        String cascadeLeftEye = "src/main/resources/cascades/haarcascade_lefteye_2splits.xml";
+        leftEyeDetector = new CascadeClassifier(cascadeLeftEye);
+        String cascadeRightEye = "src/main/resources/cascades/haarcascade_righteye_2splits.xml";
+        rightEyeDetector = new CascadeClassifier(cascadeRightEye);
     }
 
     private void initGUI() {
@@ -57,12 +56,6 @@ private CascadeClassifier eyeDetector;
         imageLabel = new JLabel();
         frame.add(imageLabel);
         frame.setVisible(true);
-        /*
-        buttonPanel = new JPanel();
-        btnRecognize = new JButton("Recognize");
-        buttonPanel.add(btnRecognize);
-        frame.add(buttonPanel,BorderLayout.SOUTH);
-        */
     }
 
 
@@ -104,13 +97,13 @@ private CascadeClassifier eyeDetector;
 
     private void detectAndDrawFace(Mat image) {
         MatOfRect faceDetections = new MatOfRect();
-        MatOfRect eyeDetections = new MatOfRect();
+        MatOfRect leftEyeDetections = new MatOfRect();
+        MatOfRect rightEyeDetections = new MatOfRect();
         faceDetector.detectMultiScale(image, faceDetections, 1.1, 7, 0, new Size(250, 40), new Size());
-        eyeDetector.detectMultiScale(image, eyeDetections, 1.3, 2, 0|CASCADE_SCALE_IMAGE, new Size(0, 0), new Size(200, 200) );
+        leftEyeDetector.detectMultiScale(image,leftEyeDetections,1.3,2,0|CASCADE_SCALE_IMAGE,new Size(0,0),new Size());
+        rightEyeDetector.detectMultiScale(image,rightEyeDetections,1.3,2,0|CASCADE_SCALE_IMAGE,new Size(0,0),new Size());
+
         // Draw a bounding box around each face.
-
-
-
         boolean b = false;
         Rect rectCrop = new Rect(10, 10, 10, 10);
         for (Rect rect : faceDetections.toArray()) {
@@ -118,20 +111,23 @@ private CascadeClassifier eyeDetector;
             b = true;
             rectCrop = new Rect(rect.x, rect.y, rect.width, rect.height);
         }
-        for(Rect eyesArr : eyeDetections.toArray()){
 
+        Mat temp = new Mat(image, rectCrop);
+        Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);
+        Imgproc.resize(temp, temp, new Size(250, 250));
+        Mat equalizedImage = new Mat();
+        Imgproc.equalizeHist(temp,equalizedImage);
+        //Imgproc.threshold(temp,temp,127,255,Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
 
+        if (b)
+            Imgcodecs.imwrite("data.png", equalizedImage);
+
+        for(Rect eyesArr : leftEyeDetections.toArray()){
             Imgproc.rectangle(image, new Point(eyesArr.x, eyesArr.y), new Point(eyesArr.x + eyesArr.width, eyesArr.y + eyesArr.height),  new Scalar(255, 0, 0), 4, 8, 0);
         }
-        Mat temp = new Mat(image, rectCrop);
-        Imgproc.resize(temp, temp, new Size(250, 250));
-
-//        Imgproc.threshold(temp,temp,127,255,Imgcodecs
-//        .CV_LOAD_IMAGE_GRAYSCALE);
-        Imgproc.cvtColor(temp, temp, Imgproc.COLOR_RGB2GRAY);
-        if (b)
-            Imgcodecs.imwrite("data.png", temp);
-
+        for(Rect eyesArr : rightEyeDetections.toArray()){
+            Imgproc.rectangle(image, new Point(eyesArr.x, eyesArr.y), new Point(eyesArr.x + eyesArr.width, eyesArr.y + eyesArr.height),  new Scalar(255, 0, 0), 4, 8, 0);
+        }
 
     }
 
